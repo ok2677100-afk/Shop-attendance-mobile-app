@@ -47,6 +47,8 @@ jobs:
           # آپ کا اصل کوڈ اور سیٹنگز واپس اپنی جگہ رکھنا
           cp backup_files/pubspec.yaml ./
           cp backup_files/main.dart ./lib/main.dart
+                    # کوٹلن کا ورژن اپڈیٹ کرنا تاکہ پیکیجز فیل نہ ہوں
+          sed -i 's/ext.kotlin_version = .*/ext.kotlin_version = "1.9.22"/' android/build.gradle
           
           # پریمیم پرمیشنز کو اینڈرائیڈ فائل میں شامل کرنا
           cat << 'EOF' > android/app/src/main/AndroidManifest.xml
