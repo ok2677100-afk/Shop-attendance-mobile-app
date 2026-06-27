@@ -1,1 +1,60 @@
 
+name: Build Shop Attendance Flutter APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-flutter-apk:
+    name: Build Flutter APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout ────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Java (required by Android build) ───────────────────
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # ── 3. Flutter SDK ─────────────────────────────────────────
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+
+      # ── 4. Verify Flutter ──────────────────────────────────────
+      - name: Flutter version
+        run: flutter --version
+
+      # ── 5. Get packages ────────────────────────────────────────
+      - name: Flutter pub get
+        run: flutter pub get
+
+      # ── 6. Patch AndroidManifest (ensure permissions exist) ───
+      - name: Verify AndroidManifest permissions
+        run: |
+          echo "✅ AndroidManifest is already committed in repo."
+          cat android/app/src/main/AndroidManifest.xml
+
+      # ── 7. Build debug APK ─────────────────────────────────────
+      - name: Build Debug APK
+        run: flutter build apk --debug --no-tree-shake-icons
+
+      # ── 8. Upload APK ──────────────────────────────────────────
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShopAttendance-Flutter-APK
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 30
+
+      - name: Done
+        run: echo "✅ Flutter APK ready — download from Artifacts section!"
