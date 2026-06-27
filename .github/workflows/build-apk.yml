@@ -42,16 +42,15 @@ jobs:
           
           # بالکل نیا اور جدید اینڈرائیڈ پروجیکٹ بنانا
           flutter create . --project-name=shop_attendance_app --platforms=android
-
           
           # آپ کا اصل کوڈ اور سیٹنگز واپس اپنی جگہ رکھنا
           cp backup_files/pubspec.yaml ./
           cp backup_files/main.dart ./lib/main.dart
-                    # کوٹلن کا ورژن اپڈیٹ کرنا تاکہ پیکیجز فیل نہ ہوں
+          
+          # نئے فارمیٹ کے مطابق کوٹلن کا ورژن اپڈیٹ کرنا
           sed -i 's/id "org.jetbrains.kotlin.android" version .*/id "org.jetbrains.kotlin.android" version "1.9.22" apply false/' android/settings.gradle
-
+          
           # پریمیم پرمیشنز کو اینڈرائیڈ فائل میں شامل کرنا
-                    # پریمیم پرمیشنز کو اینڈرائیڈ فائل میں شامل کرنا
           cat << 'EOF' > android/app/src/main/AndroidManifest.xml
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.INTERNET"/>
@@ -95,3 +94,22 @@ jobs:
               </application>
           </manifest>
           EOF
+
+      # — 5. Get Packages ———————————————————————————
+      - name: Flutter pub get
+        run: flutter pub get
+
+      # — 6. Build Release APK ——————————————————————
+      - name: Build Release APK
+        run: |
+          flutter build apk --release
+          # فائل کو آسانی کے لیے مین روٹ فولڈر میں کاپی کرنا
+          cp build/app/outputs/flutter-apk/app-release.apk ./app-release.apk
+
+      # — 7. Upload APK artifact ————————————————————
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ShopAttendance-Flutter-APK
+          path: app-release.apk
+          retention-days: 30
