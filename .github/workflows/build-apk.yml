@@ -48,8 +48,8 @@ jobs:
           cp backup_files/pubspec.yaml ./
           cp backup_files/main.dart ./lib/main.dart
                     # کوٹلن کا ورژن اپڈیٹ کرنا تاکہ پیکیجز فیل نہ ہوں
-          sed -i 's/ext.kotlin_version = .*/ext.kotlin_version = "1.9.22"/' android/build.gradle
-          
+          sed -i 's/id "org.jetbrains.kotlin.android" version .*/id "org.jetbrains.kotlin.android" version "1.9.22" apply false/' android/settings.gradle
+
           # پریمیم پرمیشنز کو اینڈرائیڈ فائل میں شامل کرنا
           cat << 'EOF' > android/app/src/main/AndroidManifest.xml
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
