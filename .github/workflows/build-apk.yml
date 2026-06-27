@@ -44,29 +44,20 @@ jobs:
           cp backup_files/pubspec.yaml ./
           cp backup_files/main.dart ./lib/main.dart
           
-          # کوٹلن کا ورژن اپڈیٹ کرنا
+          # کوٹلن کا ورژن اپڈیٹ کرنا تاکہ پلگ انز کے ساتھ میچ کرے
           sed -i 's/id "org.jetbrains.kotlin.android" version .*/id "org.jetbrains.kotlin.android" version "1.9.22" apply false/' android/settings.gradle
           
           # مینی فیسٹ فائل میں ورژن 2 فورس کرنا
           sed -i '/<\/activity>/a \        <meta-data android:name="flutterEmbedding" android:value="2" />' android/app/src/main/AndroidManifest.xml
 
-          # لوکل پراپرٹیز میں اینڈرائیڈ 34 سیٹ کرنا
+          # لوکل پراپرٹیز میں اینڈرائیڈ 34 سیٹ کرنا (یہ سب سے محفوظ طریقہ ہے)
           echo "flutter.compileSdkVersion=34" >> android/local.properties
           echo "flutter.targetSdkVersion=34" >> android/local.properties
+          echo "flutter.minSdkVersion=21" >> android/local.properties
 
-          # تمام پلگ انز اور ایپ کو زبردستی اینڈرائیڈ 34 پر مجبور کرنا تاکہ بلڈ فیل نہ ہو
-          cat << 'EOF' >> android/build.gradle
-
-          subprojects {
-              afterEvaluate { project ->
-                  if (project.hasProperty('android')) {
-                      project.android {
-                          compileSdk = 34
-                      }
-                  }
-              }
-          }
-          EOF
+          # ایپ لیول بلڈ گریڈل میں زبردستی compileSdk کو 34 پر سیٹ کرنا
+          sed -i 's/compileSdk = .*/compileSdk = 34/' android/app/build.gradle
+          sed -i 's/targetSdk = .*/targetSdk = 34/' android/app/build.gradle
 
       # — 5. Get Packages ———————————————————————————
       - name: Flutter pub get
