@@ -43,11 +43,11 @@ jobs:
           echo "✅ AndroidManifest is already committed in repo."
           cat android/app/src/main/AndroidManifest.xml
 
-      # ── 7. Build debug APK ─────────────────────────────────────
-      - name: Build Debug APK
-        run: flutter build apk --release --no-sound-null-safety
+      # — 7. Build release APK ———————————————————
+      - name: Build Release APK
+        run: flutter build apk --release
 
-      # ── 8. Upload APK ──────────────────────────────────────────
+      # — 8. Upload APK ——————————————————————————
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
