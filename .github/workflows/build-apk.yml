@@ -70,6 +70,3 @@ jobs:
           name: ShopAttendance-Flutter-APK
           path: app-release.apk
           retention-days: 30
-          name: ShopAttendance-Flutter-APK
-          path: app-release.apk
-          retention-days: 30
