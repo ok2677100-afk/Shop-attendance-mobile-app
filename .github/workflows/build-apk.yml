@@ -50,9 +50,23 @@ jobs:
           # مینی فیسٹ فائل میں ورژن 2 فورس کرنا
           sed -i '/<\/activity>/a \        <meta-data android:name="flutterEmbedding" android:value="2" />' android/app/src/main/AndroidManifest.xml
 
-          # اینڈرائیڈ بلڈ فائل میں جا کر ورژن 35 کو جڑ سے بدل کر 34 کرنا
-          sed -i 's/compileSdk.*/compileSdk = 34/g' android/app/build.gradle
-          sed -i 's/targetSdk.*/targetSdk = 34/g' android/app/build.gradle
+          # لوکل پراپرٹیز میں اینڈرائیڈ 34 سیٹ کرنا
+          echo "flutter.compileSdkVersion=34" >> android/local.properties
+          echo "flutter.targetSdkVersion=34" >> android/local.properties
+
+          # تمام پلگ انز اور ایپ کو زبردستی اینڈرائیڈ 34 پر مجبور کرنا تاکہ بلڈ فیل نہ ہو
+          cat << 'EOF' >> android/build.gradle
+
+          subprojects {
+              afterEvaluate { project ->
+                  if (project.hasProperty('android')) {
+                      project.android {
+                          compileSdk = 34
+                      }
+                  }
+              }
+          }
+          EOF
 
       # — 5. Get Packages ———————————————————————————
       - name: Flutter pub get
