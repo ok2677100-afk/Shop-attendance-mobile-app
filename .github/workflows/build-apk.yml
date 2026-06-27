@@ -40,7 +40,7 @@ jobs:
           # پرانا اینڈرائیڈ فولڈر ڈیلیٹ کرنا
           rm -rf android lib pubspec.yaml
           
-          # بالکل نیا اینڈرائیڈ پروجیکٹ بنانا (ڈارٹ نیمنگ رول کے ساتھ)
+          # بالکل نیا اینڈرائیڈ پروجیکٹ بنانا
           flutter create . --project-name=shop_attendance_app --platforms=android
           
           # آپ کا اصل کوڈ اور سیٹنگز واپس اپنی جگہ رکھنا
@@ -50,8 +50,12 @@ jobs:
           # کوٹلن کا ورژن اپڈیٹ کرنا
           sed -i 's/id "org.jetbrains.kotlin.android" version .*/id "org.jetbrains.kotlin.android" version "1.9.22" apply false/' android/settings.gradle
           
-          # مینی فیسٹ فائل میں فلٹر ایمبیڈنگ ورژن 2 کو فورس کرنا (بغیر پوری فائل چھیڑے)
+          # مینی فیسٹ فائل میں فلٹر ایمبیڈنگ ورژن 2 کو فورس کرنا
           sed -i '/<\/activity>/a \        <meta-data android:name="flutterEmbedding" android:value="2" />' android/app/src/main/AndroidManifest.xml
+          
+          # اینڈرائیڈ بلڈ کو فورس کرنا کہ وہ ورژن 35 کے بجائے مستحکم ورژن 34 استعمال کرے
+          sed -i 's/compileSdk = .*/compileSdk = 34/' android/app/build.gradle
+          sed -i 's/targetSdk = .*/targetSdk = 34/' android/app/build.gradle
 
       # — 5. Get Packages ———————————————————————————
       - name: Flutter pub get
