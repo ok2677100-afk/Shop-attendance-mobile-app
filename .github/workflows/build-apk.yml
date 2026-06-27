@@ -51,6 +51,7 @@ jobs:
           sed -i 's/id "org.jetbrains.kotlin.android" version .*/id "org.jetbrains.kotlin.android" version "1.9.22" apply false/' android/settings.gradle
 
           # پریمیم پرمیشنز کو اینڈرائیڈ فائل میں شامل کرنا
+                    # پریمیم پرمیشنز کو اینڈرائیڈ فائل میں شامل کرنا
           cat << 'EOF' > android/app/src/main/AndroidManifest.xml
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.INTERNET"/>
@@ -94,19 +95,3 @@ jobs:
               </application>
           </manifest>
           EOF
-
-      # — 5. Get Packages ———————————————————————————
-      - name: Flutter pub get
-        run: flutter pub get
-
-      # — 6. Build Release APK ——————————————————————
-      - name: Build Release APK
-        run: flutter build apk --release
-
-      # — 7. Upload APK artifact ————————————————————
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ShopAttendance-Flutter-APK
-          path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 30
