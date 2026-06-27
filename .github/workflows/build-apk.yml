@@ -2,77 +2,62 @@ name: Build Shop Attendance Flutter APK
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  build-flutter-apk:
-    name: Build Flutter APK
+  build-apk:
     runs-on: ubuntu-latest
 
     steps:
-      # — 1. Checkout repository ———————————————————
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # — 2. Java Setup ————————————————————————————
-      - name: Set up JDK 17
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 17
 
-      # — 3. Flutter Setup ——————————————————————————
-      - name: Set up Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
-          channel: 'stable'
+          flutter-version: 3.24.0
+          cache: true
 
-      # — 4. Re-create Fresh Android Project ——————————
-      - name: Re-create Android files to fix Embedding
+      - name: Flutter Doctor
+        run: flutter doctor -v
+
+      - name: Create Android Project
         run: |
-          mkdir backup_files
-          cp pubspec.yaml backup_files/
-          cp lib/main.dart backup_files/
-          
-          rm -rf android lib pubspec.yaml
-          
-          # بالکل نیا پروجیکٹ بنانا
-          flutter create . --project-name=shop_attendance_app --platforms=android
-          
-          cp backup_files/pubspec.yaml ./
-          cp backup_files/main.dart ./lib/main.dart
-          
-          # کوٹلن کا ورژن اپڈیٹ کرنا تاکہ پلگ انز کے ساتھ میچ کرے
-          sed -i 's/id "org.jetbrains.kotlin.android" version .*/id "org.jetbrains.kotlin.android" version "1.9.22" apply false/' android/settings.gradle
-          
-          # مینی فیسٹ فائل میں ورژن 2 فورس کرنا
-          sed -i '/<\/activity>/a \        <meta-data android:name="flutterEmbedding" android:value="2" />' android/app/src/main/AndroidManifest.xml
+          if [ ! -d "android" ]; then
+            flutter create .
+          fi
 
-          # لوکل پراپرٹیز میں اینڈرائیڈ 34 سیٹ کرنا (یہ سب سے محفوظ طریقہ ہے)
-          echo "flutter.compileSdkVersion=34" >> android/local.properties
-          echo "flutter.targetSdkVersion=34" >> android/local.properties
-          echo "flutter.minSdkVersion=21" >> android/local.properties
+      - name: Update Android Configuration
+        run: |
 
-          # ایپ لیول بلڈ گریڈل میں زبردستی compileSdk کو 34 پر سیٹ کرنا
-          sed -i 's/compileSdk = .*/compileSdk = 34/' android/app/build.gradle
-          sed -i 's/targetSdk = .*/targetSdk = 34/' android/app/build.gradle
+          sed -i 's/version "1.8.22"/version "1.9.24"/g' android/settings.gradle || true
+          sed -i "s/ext.kotlin_version = '1.8.22'/ext.kotlin_version = '1.9.24'/g" android/build.gradle || true
 
-      # — 5. Get Packages ———————————————————————————
-      - name: Flutter pub get
+          sed -i 's/compileSdk = .*/compileSdk = 35/g' android/app/build.gradle || true
+          sed -i 's/minSdk = .*/minSdk = 21/g' android/app/build.gradle || true
+          sed -i 's/targetSdk = .*/targetSdk = 35/g' android/app/build.gradle || true
+
+          sed -i 's/gradle-8.5-bin.zip/gradle-8.7-bin.zip/g' android/gradle/wrapper/gradle-wrapper.properties || true
+
+      - name: Get Packages
         run: flutter pub get
 
-      # — 6. Build Release APK ——————————————————————
-      - name: Build Release APK
-        run: |
-          flutter build apk --release
-          cp build/app/outputs/flutter-apk/app-release.apk ./app-release.apk
+      - name: Clean Project
+        run: flutter clean
 
-      # — 7. Upload APK artifact ————————————————————
-      - name: Upload APK artifact
+      - name: Build Release APK
+        run: flutter build apk --release --verbose
+
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ShopAttendance-Flutter-APK
-          path: app-release.apk
-          retention-days: 30
+          name: ShopAttendance-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
