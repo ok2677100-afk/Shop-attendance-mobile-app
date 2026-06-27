@@ -32,39 +32,33 @@ jobs:
       # — 4. Re-create Fresh Android Project ——————————
       - name: Re-create Android files to fix Embedding
         run: |
-          # عارضی طور پر آپ کی فائلوں کو محفوظ کرنا
           mkdir backup_files
           cp pubspec.yaml backup_files/
           cp lib/main.dart backup_files/
           
-          # پرانا اینڈرائیڈ فولڈر ڈیلیٹ کرنا
           rm -rf android lib pubspec.yaml
           
-          # بالکل نیا اینڈرائیڈ پروجیکٹ بنانا
+          # بالکل نیا پروجیکٹ بنانا
           flutter create . --project-name=shop_attendance_app --platforms=android
           
-          # آپ کا اصل کوڈ اور سیٹنگز واپس اپنی جگہ رکھنا
           cp backup_files/pubspec.yaml ./
           cp backup_files/main.dart ./lib/main.dart
           
           # کوٹلن کا ورژن اپڈیٹ کرنا
           sed -i 's/id "org.jetbrains.kotlin.android" version .*/id "org.jetbrains.kotlin.android" version "1.9.22" apply false/' android/settings.gradle
           
-          # مینی فیسٹ فائل میں فلٹر ایمبیڈنگ ورژن 2 کو فورس کرنا
+          # مینی فیسٹ فائل میں ورژن 2 فورس کرنا
           sed -i '/<\/activity>/a \        <meta-data android:name="flutterEmbedding" android:value="2" />' android/app/src/main/AndroidManifest.xml
-          
-          # اینڈرائیڈ بلڈ کو فورس کرنا کہ وہ ورژن 35 کے بجائے مستحکم ورژن 34 استعمال کرے
-          sed -i 's/compileSdk = .*/compileSdk = 34/' android/app/build.gradle
-          sed -i 's/targetSdk = .*/targetSdk = 34/' android/app/build.gradle
 
       # — 5. Get Packages ———————————————————————————
       - name: Flutter pub get
         run: flutter pub get
 
-      # — 6. Build Release APK ——————————————————————
+      # — 6. Build Release APK (Forcing Android 34) ——
       - name: Build Release APK
         run: |
-          flutter build apk --release
+          # یہاں ہم ڈائریکٹ کمانڈ کے ذریعے اینڈرائیڈ 34 کو فورس کر رہے ہیں تاکہ پرانا کیشے اثر نہ کرے
+          flutter build apk --release --compile-sdk 34 --target-sdk 34
           cp build/app/outputs/flutter-apk/app-release.apk ./app-release.apk
 
       # — 7. Upload APK artifact ————————————————————
